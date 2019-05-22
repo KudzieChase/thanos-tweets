@@ -4,8 +4,8 @@ This script is inspired by this [repository](https://github.com/koenrh/delete-tw
 
 # What you will need!
 
-  - Your twitter history archive. 
-  - Twitter developer api access - for client secret keys and tokens.
+  - Your twitter history archive. Can be found [here](https://twitter.com/settings/account) 
+  - Twitter developer api access - for client secret keys and tokens. Can be found by creating an [app](https://developer.twitter.com/en/apps)
   - Python 3 installed in your machine.
   - A little imagination.
 
