@@ -20,11 +20,11 @@ $ source venv/bin/acivate
 ```
   - Install the requirements.
  ```sh
-(venv)$ pip insatll -r requiremennts.txt
+(venv)$ pip install -r requirements.txt
 ```
  
- - Be sure to paste your twitter API credentials inside the script then.
- - Just Run if you don't have specific changes you need to make
+ - Be sure to paste your twitter API credentials inside the script.. Then,
+ - Just Run it if you don't have specific changes you need to make
  
  ```sh
 (venv)$ python3 thanos.py -snap all -r reply
