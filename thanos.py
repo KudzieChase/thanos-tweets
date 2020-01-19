@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
 import argparse
-import csv
 import sys
 import time
 import os
 import re
-from datetime import date
 import twitter
+import json
+
+from datetime import date
 from dateutil.parser import parse
 
 __author__ = "Kudzai Chasinda"
@@ -21,6 +22,10 @@ pattern_retrofit = r"retrofit|Retrofit"
 pattern_kotlin = r"kotlin|Kotlin"
 
 
+tweet_array_name = "window.YTD.tweet.part0 = "
+like_array_name = ""
+
+
 def find_match(pattern, text_string):
     res = re.findall(pattern, text_string)
     return len(res) > 0
@@ -32,15 +37,24 @@ def does_match(pattern, text_string):
     return res is not None
 
 
+def unlike(api):
+    # TODO - add implementation  to unlike tweets programmatically.
+    pass
+
+
 def delete(api, r):
     today = date.today().strftime("%Y-%m-%d")
-    with open("tweets.csv") as file:
+    with open("tweets.js") as file:
         count = 0
 
-        for row in csv.DictReader(file):
-            tweet_id = int(row["tweet_id"])
-            tweet_date = parse(row["timestamp"], ignoretz=True).date()
-            tweet_content = row["text"]
+        tweets = file.read().replace(tweet_array_name, "")
+        tweet_dictionary = json.loads(tweets)
+
+        for item in tweet_dictionary:
+            tweet = item["tweet"]
+            tweet_id = int(tweet["id"])
+            tweet_content = tweet["full_text"]
+            tweet_date = parse(tweet["created_at"], ignoretz=True).date()
 
             if today != "" and tweet_date >= parse(today).date():
                 continue
@@ -50,12 +64,16 @@ def delete(api, r):
                     or find_match(pattern_kotlin, tweet_content):
                 continue
 
-            if (r == "retweet" and row["retweeted_status_id"] == "" or
-                    r == "reply" and row["in_reply_to_status_id"] == ""):
+            if (r == "retweet" and tweet["retweeted"] == True
+                    or r == "retweet" and tweet_content.startswith("RT")):
                 continue
 
+            if(r == "reply" and "in_reply_to_status_id" in tweet):
+                if(tweet["in_reply_to_status_id"] == ""):
+                    continue
+
             try:
-                print("Snapped tweet #{0} tweeted on ({1})".format(
+                print("Deleting tweet #{0} tweeted on ({1})".format(
                     tweet_id, tweet_date))
 
                 api.DestroyStatus(tweet_id)
@@ -77,7 +95,7 @@ def error(msg, exit_code=1):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Thanos snappin' old tweets.")
+    parser = argparse.ArgumentParser(description="A Job!")
     parser.add_argument("-snap", dest="snap", choices=["all"], required=True,
                         help="Snap away all tweets from today till the beginning")  # TODO add choices for half
     parser.add_argument("-r", dest="restrict", choices=["reply", "retweet"],
@@ -96,5 +114,5 @@ def main():
     delete(api, args.restrict)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
